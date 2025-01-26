@@ -3,6 +3,8 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdi
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import matplotlib.pyplot as plt
 from database import update_database, fetch_bridge_costs
+from fpdf import FPDF
+from PIL import Image
 
 def format(amount):
     """Formats a number with commas for thousands."""
@@ -115,6 +117,11 @@ class BridgeCostApp(QWidget):
         self.export_button = QPushButton("Export as PNG", self)
         self.export_button.clicked.connect(self.export_graph)
         self.graph_layout.addWidget(self.export_button)
+        
+        #Save as PDF Button
+        self.export_pdf_button = QPushButton("Export as PDF", self)
+        self.export_pdf_button.clicked.connect(self.export_pdf)
+        self.graph_layout.addWidget(self.export_pdf_button)
 
         # Right Output Layout
         self.output_layout = QVBoxLayout()
@@ -215,3 +222,78 @@ class BridgeCostApp(QWidget):
         if file_name:
             self.figure.savefig(file_name)
             QMessageBox.information(self, "Success", "Plot exported successfully.")
+    
+    def export_pdf(self):
+        try:
+            span_length = self.span_length_input.text()
+            width = self.width_input.text()
+            traffic_volume = self.traffic_volume_input.text()
+            design_life = self.design_life_input.text()
+            
+            steel_costs = []
+            concrete_costs = []
+            components = ["Construction Cost", "Maintenance Cost", "Repair Cost", 
+                      "Demolition Cost", "Environmental Cost", "Social Cost", 
+                      "User Cost", "Total Cost"]
+            for row in range(self.output_table.rowCount()):
+                steel_costs.append(float(self.output_table.item(row, 0).text().replace(",", "")))
+                concrete_costs.append(float(self.output_table.item(row, 1).text().replace(",", "")))
+                                      
+            graph_path = "graph.png"
+            self.figure.savefig(graph_path)
+            
+            #Create PDF
+            pdf = FPDF()
+            pdf.add_page()
+            pdf.set_font("Arial", size=12)
+            
+            #Title
+            pdf.set_font("Arial", style="B", size=16)
+            pdf.cell(200, 10, "Bridge Cost Comparison", ln=True, align="C")
+
+            # Input Parameters
+            pdf.set_font("Arial", style="B", size=12)
+            pdf.ln(10)
+            pdf.cell(200, 10, f"Span Length: {span_length} m", ln=True)
+            pdf.cell(200, 10, f"Width: {width} m", ln=True)
+            pdf.cell(200, 10, f"Traffic Volume: {traffic_volume} vehicles/day", ln=True)
+            pdf.cell(200, 10, f"Design Life: {design_life} years", ln=True)
+
+            # Cost Components
+            pdf.ln(10)
+            pdf.cell(200, 10, "Cost Components", ln=True)
+            for i, component in enumerate(components):
+                pdf.cell(200, 10, f"{component}: Steel - {format(steel_costs[i])}, Concrete - {format(concrete_costs[i])}", ln=True)
+
+            # Graph
+            pdf.add_page()
+            # Adjust the image size to fit the PDF page
+            image = Image.open(graph_path)
+            original_width, original_height = image.size
+
+            # PDF page dimensions
+            pdf_width, pdf_height = pdf.w - 20, pdf.h - 20  # Leave some margin
+
+            # Scale the image while maintaining aspect ratio
+            if original_width / pdf_width > original_height / pdf_height:
+                # Fit by width
+                new_width = pdf_width
+                new_height = original_height * (pdf_width / original_width)
+            else:
+                # Fit by height
+                new_height = pdf_height
+                new_width = original_width * (pdf_height / original_height)
+
+            # Center the image on the page
+            x = (pdf.w - new_width) / 2
+            y = (pdf.h - new_height) / 2
+
+            pdf.image(graph_path, x=x, y=y, w=new_width, h=new_height)
+            # Save the PDF
+            pdf_file = QFileDialog.getSaveFileName(self, "Save PDF", "", "PDF Files (*.pdf)")[0]
+            if pdf_file:
+                pdf.output(pdf_file)
+                QMessageBox.information(self, "Success", f"PDF exported successfully to {pdf_file}.")
+
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"An error occurred: {str(e)}")
