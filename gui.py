@@ -28,6 +28,7 @@ class DatabaseUpdateDialog(QDialog):
         self.social_factor_input = QLineEdit(self)
         self.delay_factor_input = QLineEdit(self)
 
+        # Adding input fields to the layout
         layout.addWidget(QLabel("Material:"))
         layout.addWidget(self.material_input)
         layout.addWidget(QLabel("Base Rate (₹/m²):"))
@@ -47,14 +48,17 @@ class DatabaseUpdateDialog(QDialog):
 
         self.setLayout(layout)
 
+        # Dialog buttons
         self.button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         self.button_box.accepted.connect(self.handle_accept)
         self.button_box.rejected.connect(self.reject)
         layout.addWidget(self.button_box)
 
     def handle_accept(self):
+        """Handles the acceptance of the dialog and updates the database."""
         material = self.material_input.text()
         try:
+            # Convert input values to float
             base_rate = float(self.base_rate_input.text())
             maintenance_rate = float(self.maintenance_rate_input.text())
             repair_rate = float(self.repair_rate_input.text())
@@ -63,14 +67,17 @@ class DatabaseUpdateDialog(QDialog):
             social_factor = float(self.social_factor_input.text())
             delay_factor = float(self.delay_factor_input.text())
         except ValueError:
+            # Show warning if input values are not valid numbers
             QMessageBox.warning(self, "Input Error", "Please enter valid numeric values.")
             return
         
         try:
+            # Update the database with new values
             update_database(material, base_rate, maintenance_rate, repair_rate, demolition_rate, 
                             environmental_factor, social_factor, delay_factor)
             QMessageBox.information(self, "Success", f"Database updated for {material}.")
         except Exception as e:
+            # Show error message if database update fails
             QMessageBox.critical(self, "Database Error", str(e))
         self.accept()
 
@@ -89,6 +96,7 @@ class BridgeCostApp(QWidget):
         self.traffic_volume_input = QLineEdit(self)
         self.design_life_input = QLineEdit(self)
 
+        # Adding input fields to the layout
         self.input_layout.addWidget(QLabel("Span Length (m):"))
         self.input_layout.addWidget(self.span_length_input)
         self.input_layout.addWidget(QLabel("Width (m):"))
@@ -98,10 +106,12 @@ class BridgeCostApp(QWidget):
         self.input_layout.addWidget(QLabel("Design Life (years):"))
         self.input_layout.addWidget(self.design_life_input)
 
+        # Calculate button
         self.calculate_button = QPushButton("Calculate Costs", self)
         self.calculate_button.clicked.connect(self.calculate_costs)
         self.input_layout.addWidget(self.calculate_button)
 
+        # Update database button
         self.update_button = QPushButton("Update Database", self)
         self.update_button.clicked.connect(self.open_database_update_dialog)
         self.input_layout.addWidget(self.update_button)
@@ -113,12 +123,11 @@ class BridgeCostApp(QWidget):
         self.canvas = FigureCanvas(self.figure)
         self.graph_layout.addWidget(self.canvas)
 
-        # Export Button
+        # Export buttons
         self.export_button = QPushButton("Export as PNG", self)
         self.export_button.clicked.connect(self.export_graph)
         self.graph_layout.addWidget(self.export_button)
         
-        #Save as PDF Button
         self.export_pdf_button = QPushButton("Export as PDF", self)
         self.export_pdf_button.clicked.connect(self.export_pdf)
         self.graph_layout.addWidget(self.export_pdf_button)
@@ -145,19 +154,24 @@ class BridgeCostApp(QWidget):
         self.setLayout(self.main_layout)
 
     def open_database_update_dialog(self):
+        """Opens the dialog to update the database."""
         dialog = DatabaseUpdateDialog(self)
         dialog.exec_()
 
     def calculate_costs(self):
+        """Calculates the costs for steel and concrete bridges and updates the output table and graph."""
         try:
+            # Convert input values to integers
             span_length = int(self.span_length_input.text())
             width = int(self.width_input.text())
             traffic_volume = int(self.traffic_volume_input.text())
             design_life = int(self.design_life_input.text())
         except ValueError:
+            # Show warning if input values are not valid numbers
             QMessageBox.warning(self, "Input Error", "Please enter valid numeric values.")
             return
 
+        # Fetch cost data from the database
         data = fetch_bridge_costs()
         steel_costs, concrete_costs = [], []
         cost_components = ["Construction Cost", "Maintenance Cost", "Repair Cost", "Demolition Cost", "Environmental Cost", "Social Cost", "User Cost", "Total Cost"]
@@ -196,9 +210,11 @@ class BridgeCostApp(QWidget):
             self.output_table.setItem(i, 0, QTableWidgetItem(format(steel_costs[i])))
             self.output_table.setItem(i, 1, QTableWidgetItem(format(concrete_costs[i])))
 
+        # Plot the graph with calculated costs
         self.plot_graph(cost_components, steel_costs, concrete_costs)
 
     def plot_graph(self, components, steel_costs, concrete_costs):
+        """Plots the cost comparison graph between steel and concrete bridges."""
         self.figure.clear()
         ax = self.figure.add_subplot(111)
         index = range(len(components))
@@ -217,6 +233,7 @@ class BridgeCostApp(QWidget):
         self.canvas.draw()
 
     def export_graph(self):
+        """Exports the plotted graph as a PNG file."""
         options = QFileDialog.Options()
         file_name, _ = QFileDialog.getSaveFileName(self, "Save Plot", "", "PNG Files (*.png);;All Files (*)", options=options)
         if file_name:
@@ -224,7 +241,9 @@ class BridgeCostApp(QWidget):
             QMessageBox.information(self, "Success", "Plot exported successfully.")
     
     def export_pdf(self):
+        """Exports the cost comparison data and graph as a PDF file."""
         try:
+            # Get input values
             span_length = self.span_length_input.text()
             width = self.width_input.text()
             traffic_volume = self.traffic_volume_input.text()
@@ -242,12 +261,12 @@ class BridgeCostApp(QWidget):
             graph_path = "graph.png"
             self.figure.savefig(graph_path)
             
-            #Create PDF
+            # Create PDF
             pdf = FPDF()
             pdf.add_page()
             pdf.set_font("Arial", size=12)
             
-            #Title
+            # Title
             pdf.set_font("Arial", style="B", size=16)
             pdf.cell(200, 10, "Bridge Cost Comparison", ln=True, align="C")
 
@@ -296,4 +315,5 @@ class BridgeCostApp(QWidget):
                 QMessageBox.information(self, "Success", f"PDF exported successfully to {pdf_file}.")
 
         except Exception as e:
+            # Show error message if PDF export fails
             QMessageBox.critical(self, "Error", f"An error occurred: {str(e)}")
