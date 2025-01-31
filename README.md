@@ -14,35 +14,36 @@ This project is a PyQt5-based GUI application that allows users to compare the c
 ### Prerequisites
 Ensure you have Python 3 installed and the following dependencies:
 
-```bash
-pip install requirements.txt
+pip install -r requirements.txt
+text
 
-## Running the Application
-1. Clone or download the repository
-2. Run the following command to start the application
+### Running the Application
+1. Clone or download the repository.
+2. Run the following command to start the application:
 
-```bash
 python main.py
+text
 
 ## Project Structure
-├── bridge_costs.db   # SQLite database (auto-generated)
-├── database.py       # Handles database operations
-├── gui.py            # GUI implementation using PyQt5
-├── main.py           # Entry point for the application
-├── README.md         # Project documentation (this file)
+├── bridge_costs.db # SQLite database (auto-generated)
+├── database.py # Handles database operations
+├── gui.py # GUI implementation using PyQt5
+├── main.py # Entry point for the application
+├── README.md # Project documentation (this file)
+text
 
 ## Usage
-1. Enter Bridge Parameters
-- Span Length (m)
-- Width (m)
-- Traffic Volume (vehicles/day)
-- Design Life (years)
+1. **Enter Bridge Parameters**
+   - Span Length (m)
+   - Width (m)
+   - Traffic Volume (vehicles/day)
+   - Design Life (years)
 
-2. Calculate Costs
-- Click "Calculate Costs" to compare steel and concrete bridges.
+2. **Calculate Costs**
+   - Click "Calculate Costs" to compare steel and concrete bridges.
 
-3. Update Database
-- Click "Update Database" to modify cost parameters.
+3. **Update Database**
+   - Click "Update Database" to modify cost parameters.
 
-4. Export Data
-- Export results as a PNG image or PDF report.
+4. **Export Data**
+   - Export results as a PNG image or PDF report.
