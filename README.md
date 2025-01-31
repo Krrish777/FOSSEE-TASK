@@ -14,23 +14,25 @@ This project is a PyQt5-based GUI application that allows users to compare the c
 ### Prerequisites
 Ensure you have Python 3 installed and the following dependencies:
 
+``` bash
 pip install -r requirements.txt
-text
+
 
 ### Running the Application
 1. Clone or download the repository.
 2. Run the following command to start the application:
 
+``` bash
 python main.py
-text
+
 
 ## Project Structure
-├── bridge_costs.db # SQLite database (auto-generated)
-├── database.py # Handles database operations
-├── gui.py # GUI implementation using PyQt5
-├── main.py # Entry point for the application
-├── README.md # Project documentation (this file)
-text
+├── bridge_costs.db # SQLite database (auto-generated)  
+├── database.py # Handles database operations  
+├── gui.py # GUI implementation using PyQt5  
+├── main.py # Entry point for the application  
+├── README.md # Project documentation (this file)  
+
 
 ## Usage
 1. **Enter Bridge Parameters**
