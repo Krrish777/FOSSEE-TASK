@@ -16,7 +16,7 @@ Ensure you have Python 3 installed and the following dependencies:
 
 ``` bash
 pip install -r requirements.txt
-
+```
 
 ### Running the Application
 1. Clone or download the repository.
@@ -24,7 +24,7 @@ pip install -r requirements.txt
 
 ``` bash
 python main.py
-
+```
 
 ## Project Structure
 ├── bridge_costs.db # SQLite database (auto-generated)  
